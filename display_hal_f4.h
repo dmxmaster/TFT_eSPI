@@ -3,6 +3,26 @@
 #define SPI_HAS_TRANSACTION 1
 #define SUPPORT_TRANSACTIONS
 
+#if defined(STM32F40_41xxx)
+/* F407 target on SPI2 and ILI9341 LCD */
+
+#define RCC_POWER_GPIO (RCC_AHB1Periph_GPIOA | RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_GPIOC)
+
+#define CS_PORT GPIOB
+#undef FONT_CS_PORT
+#define DC_PORT GPIOC
+#define RES_PORT GPIOA
+
+#define CS_PIN_MASK (GPIO_Pin_12)
+#undef FONT_CS_PIN_MASK
+#define DC_PIN_MASK (GPIO_Pin_5)
+#define RES_PIN_MASK (GPIO_Pin_8)
+
+#elif defined(STM32F401xx)
+/* F401 target on SPI2 and ST7735 LCD */
+
+#define RCC_POWER_GPIO (RCC_AHB1Periph_GPIOB)
+
 #define CS_PORT GPIOB
 #define FONT_CS_PORT GPIOB
 #define DC_PORT GPIOB
@@ -12,6 +32,12 @@
 #define FONT_CS_PIN_MASK (GPIO_Pin_12)
 #define DC_PIN_MASK (GPIO_Pin_1)
 #define RES_PIN_MASK (GPIO_Pin_10)
+
+#else
+
+#error unsupported platform!
+
+#endif
 
 #define CS_L CS_PORT->BSRR = CS_PIN_MASK << 16
 #define CS_H CS_PORT->BSRR = CS_PIN_MASK

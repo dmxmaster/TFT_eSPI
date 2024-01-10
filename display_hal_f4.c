@@ -3,7 +3,7 @@
 #include "stm32f4xx.h"
 #include "display_hal_f4.h"
 
-#ifdef STM32F401xx /* TODO add additional F4-based platforms */
+#if defined(STM32F401xx) || defined(STM32F40_41xxx) /* TODO add additional F4-based platforms */
 
 #define SPI_SPEED SPI_BaudRatePrescaler_2
 #define SPIx_TX_DMA_STREAM      DMA1_Stream4
@@ -17,7 +17,7 @@ void displayHardwareInit(void)
     DMA_InitTypeDef dma;
 
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_SPI2, ENABLE);
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_POWER_GPIO, ENABLE);
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
 
     GPIO_PinAFConfig(GPIOB, GPIO_PinSource13, GPIO_AF_SPI2);
@@ -32,16 +32,29 @@ void displayHardwareInit(void)
     GPIO_Init(GPIOB, &gpio);
 
     // FONT_CS + LCD_RES + LCD_DC
+#ifdef FONT_CS_PORT
     FONT_CS_H;
+#endif
     DC_D;
     RES_H;
-    gpio.GPIO_Pin = FONT_CS_PIN_MASK | DC_PIN_MASK | RES_PIN_MASK;
+
     gpio.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_Init(GPIOB, &gpio);
+
+#ifdef FONT_CS_PORT
+    gpio.GPIO_Pin = FONT_CS_PIN_MASK;
+    GPIO_Init(FONT_CS_PORT, &gpio);
+#endif
+
+    // LCD_DC
+    gpio.GPIO_Pin = DC_PIN_MASK;
+    GPIO_Init(DC_PORT, &gpio);
+
+    // LCD_RES
+    gpio.GPIO_Pin = RES_PIN_MASK;
+    GPIO_Init(RES_PORT, &gpio);
 
     // LCD_CS
     gpio.GPIO_Pin = CS_PIN_MASK;
-    gpio.GPIO_Mode = GPIO_Mode_OUT;
     GPIO_Init(CS_PORT, &gpio);
 
     SPI_StructInit(&spi);

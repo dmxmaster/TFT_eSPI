@@ -117,7 +117,7 @@
   writecommand(ILI9341_SLPOUT);    //Exit Sleep
  
   end_tft_write();
-  delay(120);
+  delayWaitms(120);
   begin_tft_write();
   
   writecommand(ILI9341_DISPON);    //Display on
